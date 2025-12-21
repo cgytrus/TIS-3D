@@ -34,7 +34,8 @@ dependencies {
     modApi(libs.fabric.api)
     modApi(libs.fabric.architectury)
 
-    modApi(libs.fabric.roughlyEnoughItems)
+    modCompileOnly(libs.fabric.reiApi)
+    modRuntimeOnly(libs.fabric.rei)
     modImplementation(libs.fabric.manual)
     modImplementation(libs.fabric.forgeConfigPort)
 
