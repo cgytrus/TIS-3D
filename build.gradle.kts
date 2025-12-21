@@ -70,7 +70,7 @@ subprojects {
 
         withType<JavaCompile>().configureEach {
             options.encoding = "utf-8"
-            options.release.set(17)
+            options.release.set(21)
         }
     }
 
