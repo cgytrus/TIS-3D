@@ -18,6 +18,7 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.Containers;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.ItemInteractionResult;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
@@ -115,18 +116,34 @@ public class CasingBlock extends BaseEntityBlock {
             final var state = context.getLevel().getBlockState(context.getClickedPos());
             if (state.getBlock() instanceof final CasingBlock casing) {
                 final var hit = new BlockHitResult(context.getClickLocation(), context.getClickedFace(), context.getClickedPos(), context.isInside());
-                return Optional.of(casing.use(state, context.getLevel(), context.getClickedPos(), context.getPlayer(), context.getHand(), hit));
+                return Optional.of(casing.use(context.getLevel(), context.getClickedPos(), context.getPlayer(), context.getHand(), hit) ?
+                    InteractionResult.sidedSuccess(context.getLevel().isClientSide()) :
+                    InteractionResult.PASS);
             }
         }
         return Optional.empty();
     }
 
-    @SuppressWarnings("deprecation")
     @Override
-    public InteractionResult use(final BlockState state, final Level level, final BlockPos pos, final Player player, final InteractionHand hand, final BlockHitResult hit) {
+    protected ItemInteractionResult useItemOn(final ItemStack stack, final BlockState state, final Level level, final BlockPos pos, final Player player, final InteractionHand hand, final BlockHitResult hit) {
+        if (!use(level, pos, player, hand, hit)) {
+            return super.useItemOn(stack, state, level, pos, player, hand, hit);
+        }
+        return ItemInteractionResult.sidedSuccess(level.isClientSide());
+    }
+
+    @Override
+    protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hit) {
+        if (!use(level, pos, player, player.getUsedItemHand(), hit)) {
+            return super.useWithoutItem(state, level, pos, player, hit);
+        }
+        return InteractionResult.sidedSuccess(level.isClientSide());
+    }
+
+    public boolean use(final Level level, final BlockPos pos, final Player player, final InteractionHand hand, final BlockHitResult hit) {
         final BlockEntity blockEntity = level.getBlockEntity(pos);
         if (!(blockEntity instanceof final CasingBlockEntity casing)) {
-            return super.use(state, level, pos, player, hand, hit);
+            return false;
         }
 
         final BlockPos hitPos = hit.getBlockPos();
@@ -151,18 +168,18 @@ public class CasingBlock extends BaseEntityBlock {
                     }
                 }
             }
-            return InteractionResult.sidedSuccess(level.isClientSide());
+            return true;
         }
 
         // Let the module handle the activation.
         final Module module = casing.getModule(Face.fromDirection(side));
         if (module != null && module.use(player, hand, localHitPos)) {
-            return InteractionResult.sidedSuccess(level.isClientSide());
+            return true;
         }
 
         // Don't allow changing modules while casing is locked.
         if (casing.isLocked()) {
-            return super.use(state, level, pos, player, hand, hit);
+            return false;
         }
 
         // Remove old module or install new one.
@@ -177,7 +194,7 @@ public class CasingBlock extends BaseEntityBlock {
                     level.playSound(null, pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, SoundEvents.PISTON_CONTRACT, SoundSource.BLOCKS, 0.2f, 0.8f + level.random.nextFloat() * 0.1f);
                 }
             }
-            return InteractionResult.sidedSuccess(level.isClientSide());
+            return true;
         } else if (!heldItem.isEmpty()) {
             // Installing a new module in the casing.
             if (casing.canPlaceItemThroughFace(side.ordinal(), heldItem, side)) {
@@ -196,13 +213,12 @@ public class CasingBlock extends BaseEntityBlock {
                     }
                     level.playSound(null, pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, SoundEvents.PISTON_EXTEND, SoundSource.BLOCKS, 0.2f, 0.8f + level.random.nextFloat() * 0.1f);
                 }
-                return InteractionResult.sidedSuccess(level.isClientSide());
+                return true;
             }
         }
-        return super.use(state, level, pos, player, hand, hit);
+        return false;
     }
 
-    @SuppressWarnings("deprecation")
     @Override
     public void onRemove(final BlockState state, final Level level, final BlockPos pos, final BlockState newState, final boolean isMoving) {
         if (!state.is(newState.getBlock())) {
@@ -218,19 +234,16 @@ public class CasingBlock extends BaseEntityBlock {
     // --------------------------------------------------------------------- //
     // Redstone
 
-    @SuppressWarnings("deprecation")
     @Override
     public boolean hasAnalogOutputSignal(final BlockState state) {
         return true;
     }
 
-    @SuppressWarnings("deprecation")
     @Override
     public int getAnalogOutputSignal(final BlockState state, final Level level, final BlockPos pos) {
         return AbstractContainerMenu.getRedstoneSignalFromBlockEntity(level.getBlockEntity(pos));
     }
 
-    @SuppressWarnings("deprecation")
     @Override
     public int getSignal(final BlockState blockState, final BlockGetter level, final BlockPos pos, final Direction side) {
         final BlockEntity blockEntity = level.getBlockEntity(pos);
@@ -243,7 +256,6 @@ public class CasingBlock extends BaseEntityBlock {
         return super.getSignal(blockState, level, pos, side);
     }
 
-    @SuppressWarnings("deprecation")
     @Override
     public boolean isSignalSource(final BlockState state) {
         return true;
@@ -252,7 +264,6 @@ public class CasingBlock extends BaseEntityBlock {
     // --------------------------------------------------------------------- //
     // Networking
 
-    @SuppressWarnings("deprecation")
     @Override
     public void neighborChanged(final BlockState state, final Level level, final BlockPos pos, final Block block, final BlockPos fromPos, final boolean isMoving) {
         final BlockEntity blockEntity = level.getBlockEntity(pos);

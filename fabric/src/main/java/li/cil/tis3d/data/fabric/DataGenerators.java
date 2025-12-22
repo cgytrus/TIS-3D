@@ -8,8 +8,9 @@ public final class DataGenerators implements DataGeneratorEntrypoint {
     public void onInitializeDataGenerator(final FabricDataGenerator generator) {
         final var pack = generator.createPack();
 
-        pack.addProvider(ModBlockTagsProvider::new);
-        pack.addProvider(ModItemTagsProvider::new);
+        final var blockTags = pack.addProvider(ModBlockTagsProvider::new);
+        pack.addProvider((a, b) -> new ModItemTagsProvider(a, b, blockTags));
+        pack.addProvider(ModLootTableProvider.ModBlockLootTableProvider::new);
         pack.addProvider(ModRecipesProvider::new);
     }
 }

@@ -18,6 +18,8 @@ import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
@@ -233,7 +235,11 @@ public final class CasingBlockEntityRenderer implements BlockEntityRenderer<Casi
     }
 
     private boolean isObserverHoldingKey() {
-        for (final ItemStack stack : renderer.camera.getEntity().getHandSlots()) {
+        final Entity entity = renderer.camera.getEntity();
+        if (!(entity instanceof LivingEntity))
+            return false;
+
+        for (final ItemStack stack : ((LivingEntity)entity).getHandSlots()) {
             if (Items.is(stack, Items.KEY) || Items.is(stack, Items.KEY_CREATIVE)) {
                 return true;
             }

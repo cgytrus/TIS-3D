@@ -4,6 +4,7 @@ import dev.architectury.event.events.client.ClientTickEvent;
 import dev.architectury.event.events.common.TickEvent;
 import dev.architectury.networking.NetworkManager;
 import dev.architectury.platform.Platform;
+import dev.architectury.utils.GameInstance;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufOutputStream;
 import io.netty.buffer.Unpooled;
@@ -14,10 +15,12 @@ import li.cil.tis3d.common.config.CommonConfig;
 import li.cil.tis3d.common.network.message.*;
 import li.cil.tis3d.util.LevelUtils;
 import net.fabricmc.api.EnvType;
+import net.minecraft.client.multiplayer.ClientPacketListener;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtIo;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerChunkCache;
@@ -81,7 +84,7 @@ public final class Network {
     }
 
     private static <T extends AbstractMessage> void registerMessage(final Class<T> type, final Function<FriendlyByteBuf, T> decoder, final NetworkManager.Side side) {
-        final ResourceLocation id = new ResourceLocation(API.MOD_ID, type.getSimpleName().replaceAll("Message$", "").toLowerCase(Locale.US));
+        final ResourceLocation id = ResourceLocation.fromNamespaceAndPath(API.MOD_ID, type.getSimpleName().replaceAll("Message$", "").toLowerCase(Locale.US));
         MESSAGE_IDS.put(type, id);
         if (side != NetworkManager.serverToClient() || Platform.getEnv() == EnvType.CLIENT) {
             NetworkManager.registerReceiver(side, id, (buffer, context) -> {
@@ -98,7 +101,7 @@ public final class Network {
         if (id == null) {
             throw new IllegalArgumentException("Trying to send message with unregistered type.");
         }
-        final var buffer = new FriendlyByteBuf(Unpooled.buffer());
+        final var buffer = new RegistryFriendlyByteBuf(Unpooled.buffer(), player.registryAccess());
         message.toBytes(buffer);
         NetworkManager.sendToPlayer(player, id, buffer);
     }
@@ -167,7 +170,11 @@ public final class Network {
         if (id == null) {
             throw new IllegalArgumentException("Trying to send message with unregistered type.");
         }
-        final var buffer = new FriendlyByteBuf(Unpooled.buffer());
+        ClientPacketListener connection = GameInstance.getClient().getConnection();
+        if (connection == null) {
+            return;
+        }
+        final var buffer = new RegistryFriendlyByteBuf(Unpooled.buffer(), connection.registryAccess());
         message.toBytes(buffer);
         NetworkManager.sendToServer(id, buffer);
     }

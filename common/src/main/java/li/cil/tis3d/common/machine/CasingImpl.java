@@ -10,6 +10,7 @@ import li.cil.tis3d.api.module.ModuleProvider;
 import li.cil.tis3d.api.module.traits.ModuleWithRedstone;
 import li.cil.tis3d.common.block.entity.CasingBlockEntity;
 import li.cil.tis3d.common.block.entity.ControllerBlockEntity;
+import li.cil.tis3d.common.item.DataComponents;
 import li.cil.tis3d.common.item.Items;
 import li.cil.tis3d.common.network.Network;
 import li.cil.tis3d.common.provider.ModuleProviders;
@@ -18,6 +19,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.level.Level;
 
 import javax.annotation.Nullable;
@@ -369,10 +371,11 @@ public final class CasingImpl implements Casing {
      * @return the key, if present.
      */
     private static Optional<UUID> getKeyFromStack(final ItemStack stack) {
-        final CompoundTag tag = stack.getTag();
-        if (tag == null) {
+        final CustomData data = stack.get(DataComponents.KEY.get());
+        if (data == null) {
             return Optional.empty();
         }
+        final CompoundTag tag = data.copyTag();
         if (!tag.hasUUID(TAG_KEY)) {
             return Optional.empty();
         }
@@ -386,7 +389,8 @@ public final class CasingImpl implements Casing {
      * @param key   the key to store on the stack.
      */
     private static void setKeyForStack(final ItemStack stack, final UUID key) {
-        final CompoundTag tag = stack.getOrCreateTag();
+        final CompoundTag tag = new CompoundTag();
         tag.putUUID(TAG_KEY, key);
+        CustomData.set(DataComponents.KEY.get(), stack, tag);
     }
 }

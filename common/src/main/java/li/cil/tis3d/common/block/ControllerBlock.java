@@ -7,6 +7,7 @@ import li.cil.tis3d.common.item.Items;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.ItemInteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -65,30 +66,31 @@ public final class ControllerBlock extends BaseEntityBlock {
     // --------------------------------------------------------------------- //
     // Common
 
-    @SuppressWarnings("deprecation")
+
     @Override
-    public InteractionResult use(final BlockState state, final Level level, final BlockPos pos, final Player player, final InteractionHand hand, final BlockHitResult hit) {
-        final ItemStack heldItem = player.getItemInHand(hand);
-        if (!heldItem.isEmpty()) {
-            final Item item = heldItem.getItem();
-            if (item == net.minecraft.world.item.Items.BOOK) {
-                if (!level.isClientSide()) {
-                    if (!player.getAbilities().instabuild) {
-                        heldItem.split(1);
-                    }
-                    final ItemStack bookManual = new ItemStack(Items.BOOK_MANUAL.get());
-                    if (player.getInventory().add(bookManual)) {
-                        player.containerMenu.broadcastChanges();
-                    }
-                    if (bookManual.getCount() > 0) {
-                        player.drop(bookManual, false, false);
-                    }
+    protected ItemInteractionResult useItemOn(final ItemStack stack, final BlockState state, final Level level, final BlockPos pos, final Player player, final InteractionHand hand, final BlockHitResult hit) {
+        final Item item = stack.getItem();
+        if (item == net.minecraft.world.item.Items.BOOK) {
+            if (!level.isClientSide()) {
+                if (!player.getAbilities().instabuild) {
+                    stack.split(1);
                 }
-
-                return InteractionResult.sidedSuccess(level.isClientSide());
+                final ItemStack bookManual = new ItemStack(Items.BOOK_MANUAL.get());
+                if (player.getInventory().add(bookManual)) {
+                    player.containerMenu.broadcastChanges();
+                }
+                if (bookManual.getCount() > 0) {
+                    player.drop(bookManual, false, false);
+                }
             }
-        }
 
+            return ItemInteractionResult.sidedSuccess(level.isClientSide());
+        }
+        return super.useItemOn(stack, state, level, pos, player, hand, hit);
+    }
+
+    @Override
+    protected InteractionResult useWithoutItem(final BlockState state, final Level level, final BlockPos pos, final Player player, final BlockHitResult hit) {
         final BlockEntity blockEntity = level.getBlockEntity(pos);
         if (blockEntity instanceof final ControllerBlockEntity controller) {
             if (!level.isClientSide()) {
@@ -98,7 +100,7 @@ public final class ControllerBlock extends BaseEntityBlock {
             return InteractionResult.sidedSuccess(level.isClientSide());
         }
 
-        return super.use(state, level, pos, player, hand, hit);
+        return super.useWithoutItem(state, level, pos, player, hit);
     }
 
     // --------------------------------------------------------------------- //

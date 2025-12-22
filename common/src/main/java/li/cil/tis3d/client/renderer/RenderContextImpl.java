@@ -110,41 +110,36 @@ public final class RenderContextImpl implements RenderContext {
                          final float x, final float y, final float width, final float height,
                          final float u0, final float v0, final float u1, final float v1,
                          final int argb) {
-        final var pose = getMatrixStack().last().pose();
-        final var normal = getMatrixStack().last().normal();
+        final var pose = getMatrixStack().last();
         final var up = new Vector3f(0, 0, -1);
 
-        builder.vertex(pose, x, y + height, 0)
-            .color(argb)
-            .uv(u0, v1)
-            .overlayCoords(overlay)
-            .uv2(light)
-            .normal(normal, up.x(), up.y(), up.z())
-            .endVertex();
+        builder.addVertex(pose, x, y + height, 0)
+            .setColor(argb)
+            .setUv(u0, v1)
+            .setOverlay(overlay)
+            .setLight(light)
+            .setNormal(pose, up.x(), up.y(), up.z());
 
-        builder.vertex(pose, x + width, y + height, 0)
-            .color(argb)
-            .uv(u1, v1)
-            .overlayCoords(overlay)
-            .uv2(light)
-            .normal(normal, up.x(), up.y(), up.z())
-            .endVertex();
+        builder.addVertex(pose, x + width, y + height, 0)
+            .setColor(argb)
+            .setUv(u1, v1)
+            .setOverlay(overlay)
+            .setLight(light)
+            .setNormal(pose, up.x(), up.y(), up.z());
 
-        builder.vertex(pose, x + width, y, 0)
-            .color(argb)
-            .uv(u1, v0)
-            .overlayCoords(overlay)
-            .uv2(light)
-            .normal(normal, up.x(), up.y(), up.z())
-            .endVertex();
+        builder.addVertex(pose, x + width, y, 0)
+            .setColor(argb)
+            .setUv(u1, v0)
+            .setOverlay(overlay)
+            .setLight(light)
+            .setNormal(pose, up.x(), up.y(), up.z());
 
-        builder.vertex(pose, x, y, 0)
-            .color(argb)
-            .uv(u0, v0)
-            .overlayCoords(overlay)
-            .uv2(light)
-            .normal(normal, up.x(), up.y(), up.z())
-            .endVertex();
+        builder.addVertex(pose, x, y, 0)
+            .setColor(argb)
+            .setUv(u0, v0)
+            .setOverlay(overlay)
+            .setLight(light)
+            .setNormal(pose, up.x(), up.y(), up.z());
     }
 
     // --------------------------------------------------------------------- //

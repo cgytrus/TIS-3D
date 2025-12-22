@@ -7,6 +7,7 @@ import li.cil.tis3d.common.block.entity.BlockEntities;
 import li.cil.tis3d.common.config.CommonConfig;
 import li.cil.tis3d.common.container.Containers;
 import li.cil.tis3d.common.entity.Entities;
+import li.cil.tis3d.common.item.DataComponents;
 import li.cil.tis3d.common.item.Items;
 import li.cil.tis3d.common.item.ModCreativeTabs;
 import li.cil.tis3d.common.provider.ModuleProviders;
@@ -29,6 +30,7 @@ public final class CommonBootstrap {
         BlockTags.initialize();
         Blocks.initialize();
         Items.initialize();
+        DataComponents.initialize();
         BlockEntities.initialize();
         Entities.initialize();
         Containers.initialize();

@@ -190,10 +190,10 @@ public final class InfraredModule extends AbstractModule implements InfraredRece
      */
     private void emitInfraredPacket(final short value) {
         final Direction facing = Face.toDirection(getFace());
-        final BlockPos blockPos = getCasing().getPosition().relative(facing);
+        final BlockPos blockPos = getCasing().getPosition();
 
         final Level level = getCasing().getCasingLevel();
-        final Vec3 position = new Vec3(blockPos.getX() + 0.5, blockPos.getY() + 0.5, blockPos.getZ() + 0.5);
+        final Vec3 position = blockPos.getCenter();
         final Vec3 direction = new Vec3(facing.getStepX(), facing.getStepY(), facing.getStepZ());
 
         InfraredAPI.sendPacket(level, position, direction, value);

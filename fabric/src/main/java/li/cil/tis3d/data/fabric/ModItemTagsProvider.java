@@ -1,5 +1,6 @@
 package li.cil.tis3d.data.fabric;
 
+import li.cil.tis3d.common.tags.BlockTags;
 import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;
 import net.fabricmc.fabric.api.datagen.v1.provider.FabricTagProvider;
 import net.minecraft.core.HolderLookup;
@@ -14,16 +15,14 @@ import static li.cil.tis3d.common.item.Items.*;
 import static li.cil.tis3d.common.tags.ItemTags.*;
 
 public class ModItemTagsProvider extends FabricTagProvider.ItemTagProvider {
-    public ModItemTagsProvider(final FabricDataOutput output, final CompletableFuture<HolderLookup.Provider> registries) {
-        super(output, registries);
+    public ModItemTagsProvider(final FabricDataOutput output, final CompletableFuture<HolderLookup.Provider> registries,
+                               FabricTagProvider.BlockTagProvider blockTagProvider) {
+        super(output, registries, blockTagProvider);
     }
 
     @Override
     protected void addTags(final HolderLookup.Provider provider) {
-        tag(COMPUTERS).add(
-            key(CASING.get()),
-            key(CONTROLLER.get())
-        );
+        copy(BlockTags.COMPUTERS, COMPUTERS);
 
         tag(MODULES).add(
             key(AUDIO_MODULE.get()),
@@ -57,20 +56,6 @@ public class ModItemTagsProvider extends FabricTagProvider.ItemTagProvider {
             key(KEY.get()),
             key(KEY_CREATIVE.get())
         );
-
-        tag(CommonItemTags.CHESTS).add(key(Items.CHEST));
-        tag(CommonItemTags.DIAMOND_GEMS).add(key(Items.DIAMOND));
-        tag(CommonItemTags.EMERALDS).add(key(Items.EMERALD));
-        tag(CommonItemTags.ENDER_PEARLS).add(key(Items.ENDER_PEARL));
-        tag(CommonItemTags.GLASS_PANES).add(key(Items.GLASS_PANE));
-        tag(CommonItemTags.GOLD_INGOTS).add(key(Items.GOLD_INGOT));
-        tag(CommonItemTags.GOLD_NUGGETS).add(key(Items.GOLD_NUGGET));
-        tag(CommonItemTags.IRON_BLOCKS).add(key(Items.IRON_BLOCK));
-        tag(CommonItemTags.IRON_INGOTS).add(key(Items.IRON_INGOT));
-        tag(CommonItemTags.LAPIS_LAZULIS).add(key(Items.LAPIS_LAZULI));
-        tag(CommonItemTags.QUARTZ_GEMS).add(key(Items.QUARTZ));
-        tag(CommonItemTags.REDSTONE_DUSTS).add(key(Items.REDSTONE));
-        tag(CommonItemTags.SAND).add(key(Items.SAND));
     }
 
     private static ResourceKey<Item> key(final Item item) {

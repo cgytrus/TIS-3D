@@ -49,6 +49,7 @@ subprojects {
             forRepository { maven("https://api.modrinth.com/maven") }
             filter { includeGroup("maven.modrinth") }
         }
+        mavenLocal()
     }
 
     dependencies {
@@ -155,6 +156,6 @@ spotless {
         endWithNewline()
         trimTrailingWhitespace()
         removeUnusedImports()
-        indentWithSpaces()
+        leadingTabsToSpaces()
     }
 }

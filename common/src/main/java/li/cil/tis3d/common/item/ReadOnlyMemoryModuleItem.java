@@ -14,6 +14,7 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 
@@ -23,9 +24,9 @@ public final class ReadOnlyMemoryModuleItem extends ModuleItem {
     private static final String TAG_DATA = "data";
     private static final byte[] EMPTY_DATA = new byte[0];
 
-    public ReadOnlyMemoryModuleItem() {
-        super(createProperties().stacksTo(1));
-    }
+    //public ReadOnlyMemoryModuleItem() {
+    //    super(createProperties().stacksTo(1));
+    //}
 
     // --------------------------------------------------------------------- //
     // Item
@@ -75,7 +76,7 @@ public final class ReadOnlyMemoryModuleItem extends ModuleItem {
      * @return the data loaded from the stack.
      */
     public static byte[] loadFromStack(final ItemStack stack) {
-        return loadFromTag(stack.getTag());
+        return loadFromTag(stack.getOrDefault(DataComponents.ROM_DATA.get(), CustomData.EMPTY).copyTag());
     }
 
     /**
@@ -85,7 +86,7 @@ public final class ReadOnlyMemoryModuleItem extends ModuleItem {
      * @param data  the data to save to the item stack.
      */
     public static void saveToStack(final ItemStack stack, final byte[] data) {
-        final CompoundTag tag = stack.getOrCreateTag();
+        final CompoundTag tag = new CompoundTag();
 
         byte[] tagData = tag.getByteArray(TAG_DATA);
         if (tagData.length != data.length) {
@@ -94,5 +95,7 @@ public final class ReadOnlyMemoryModuleItem extends ModuleItem {
 
         System.arraycopy(data, 0, tagData, 0, data.length);
         tag.putByteArray(TAG_DATA, tagData);
+
+        CustomData.set(DataComponents.ROM_DATA.get(), stack, tag);
     }
 }

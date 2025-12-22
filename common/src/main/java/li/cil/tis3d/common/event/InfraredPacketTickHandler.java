@@ -2,6 +2,7 @@ package li.cil.tis3d.common.event;
 
 import dev.architectury.event.events.common.TickEvent;
 import li.cil.tis3d.common.entity.InfraredPacketEntity;
+import net.minecraft.server.MinecraftServer;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -21,7 +22,7 @@ public final class InfraredPacketTickHandler {
     // --------------------------------------------------------------------- //
 
     public static void initialize() {
-        TickEvent.SERVER_POST.register(level -> onServerTick());
+        TickEvent.SERVER_POST.register(InfraredPacketTickHandler::onServerTick);
     }
 
     // --------------------------------------------------------------------- //
@@ -38,7 +39,10 @@ public final class InfraredPacketTickHandler {
 
     // --------------------------------------------------------------------- //
 
-    public static void onServerTick() {
+    public static void onServerTick(MinecraftServer server) {
+        if (!server.tickRateManager().runsNormally())
+            return;
+
         livePackets.addAll(pendingAdds);
         pendingAdds.clear();
 

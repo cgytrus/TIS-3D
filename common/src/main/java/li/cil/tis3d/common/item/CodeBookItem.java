@@ -15,6 +15,7 @@ import net.minecraft.world.InteractionResult;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 
@@ -315,7 +316,7 @@ public final class CodeBookItem extends ModItem {
          * @return the data loaded from the stack.
          */
         public static Data loadFromStack(final ItemStack stack) {
-            return loadFromTag(stack.getTag());
+            return loadFromTag(stack.getOrDefault(DataComponents.CODE_DATA.get(), CustomData.EMPTY).copyTag());
         }
 
         /**
@@ -325,7 +326,9 @@ public final class CodeBookItem extends ModItem {
          * @param data  the data to save to the item stack.
          */
         public static void saveToStack(final ItemStack stack, final Data data) {
-            data.save(stack.getOrCreateTag());
+            final CompoundTag tag = new CompoundTag();
+            data.save(tag);
+            CustomData.set(DataComponents.CODE_DATA.get(), stack, tag);
         }
 
         // --------------------------------------------------------------------- //

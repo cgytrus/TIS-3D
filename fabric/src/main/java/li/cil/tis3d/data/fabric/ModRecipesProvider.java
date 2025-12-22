@@ -5,9 +5,9 @@ import li.cil.tis3d.api.API;
 import li.cil.tis3d.common.item.Items;
 import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;
 import net.fabricmc.fabric.api.datagen.v1.provider.FabricRecipeProvider;
+import net.fabricmc.fabric.api.tag.convention.v2.ConventionalItemTags;
 import net.minecraft.advancements.Criterion;
-import net.minecraft.advancements.critereon.InventoryChangeTrigger;
-import net.minecraft.advancements.critereon.ItemPredicate;
+import net.minecraft.advancements.critereon.*;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.data.recipes.RecipeCategory;
 import net.minecraft.data.recipes.RecipeOutput;
@@ -23,7 +23,7 @@ import java.util.concurrent.CompletableFuture;
 
 public final class ModRecipesProvider extends FabricRecipeProvider {
     public ModRecipesProvider(final FabricDataOutput output, final CompletableFuture<HolderLookup.Provider> ignoredRegistries) {
-        super(output);
+        super(output, ignoredRegistries);
     }
 
     @Override
@@ -33,10 +33,10 @@ public final class ModRecipesProvider extends FabricRecipeProvider {
             .pattern("IRI")
             .pattern("RSR")
             .pattern("IRI")
-            .define('I', CommonItemTags.IRON_INGOTS)
-            .define('R', CommonItemTags.REDSTONE_DUSTS)
-            .define('S', CommonItemTags.IRON_BLOCKS)
-            .unlockedBy("has_redstone", inventoryChange(CommonItemTags.REDSTONE_DUSTS))
+            .define('I', ConventionalItemTags.IRON_INGOTS)
+            .define('R', ConventionalItemTags.REDSTONE_DUSTS)
+            .define('S', ConventionalItemTags.STORAGE_BLOCKS_IRON)
+            .unlockedBy("has_redstone", inventoryChange(ConventionalItemTags.REDSTONE_DUSTS))
             .save(consumer);
 
         ShapedRecipeBuilder
@@ -44,10 +44,10 @@ public final class ModRecipesProvider extends FabricRecipeProvider {
             .pattern("IRI")
             .pattern("RSR")
             .pattern("IRI")
-            .define('I', CommonItemTags.IRON_INGOTS)
-            .define('R', CommonItemTags.REDSTONE_DUSTS)
-            .define('S', CommonItemTags.DIAMOND_GEMS)
-            .unlockedBy("has_redstone", inventoryChange(CommonItemTags.REDSTONE_DUSTS))
+            .define('I', ConventionalItemTags.IRON_INGOTS)
+            .define('R', ConventionalItemTags.REDSTONE_DUSTS)
+            .define('S', ConventionalItemTags.DIAMOND_GEMS)
+            .unlockedBy("has_redstone", inventoryChange(ConventionalItemTags.REDSTONE_DUSTS))
             .save(consumer);
 
         ShapedRecipeBuilder
@@ -55,20 +55,20 @@ public final class ModRecipesProvider extends FabricRecipeProvider {
             .pattern("GI ")
             .pattern("GI ")
             .pattern("LRQ")
-            .define('L', CommonItemTags.LAPIS_LAZULIS)
-            .define('G', CommonItemTags.GOLD_NUGGETS)
-            .define('I', CommonItemTags.IRON_INGOTS)
-            .define('Q', CommonItemTags.QUARTZ_GEMS)
-            .define('R', CommonItemTags.REDSTONE_DUSTS)
+            .define('L', ConventionalItemTags.LAPIS_GEMS)
+            .define('G', ConventionalItemTags.GOLD_NUGGETS)
+            .define('I', ConventionalItemTags.IRON_INGOTS)
+            .define('Q', ConventionalItemTags.QUARTZ_GEMS)
+            .define('R', ConventionalItemTags.REDSTONE_DUSTS)
             .unlockedBy("has_casing", inventoryChange(Items.CASING.get()))
             .save(consumer);
 
         ShapelessRecipeBuilder
             .shapeless(RecipeCategory.MISC, Items.PRISM.get())
-            .requires(CommonItemTags.QUARTZ_GEMS)
-            .requires(CommonItemTags.REDSTONE_DUSTS)
-            .requires(CommonItemTags.LAPIS_LAZULIS)
-            .requires(CommonItemTags.EMERALDS)
+            .requires(ConventionalItemTags.QUARTZ_GEMS)
+            .requires(ConventionalItemTags.REDSTONE_DUSTS)
+            .requires(ConventionalItemTags.LAPIS_GEMS)
+            .requires(ConventionalItemTags.EMERALD_GEMS)
             .unlockedBy("has_execution_module", inventoryChange(Items.EXECUTION_MODULE.get()))
             .save(consumer);
 
@@ -76,7 +76,7 @@ public final class ModRecipesProvider extends FabricRecipeProvider {
             .save(consumer);
         module(Items.DISPLAY_MODULE, 2, Items.PRISM.get(), inventoryChange(Items.EXECUTION_MODULE.get()))
             .save(consumer);
-        module(Items.EXECUTION_MODULE, 2, CommonItemTags.GOLD_INGOTS, inventoryChange(Items.REDSTONE_MODULE.get()))
+        module(Items.EXECUTION_MODULE, 2, ConventionalItemTags.GOLD_INGOTS, inventoryChange(Items.REDSTONE_MODULE.get()))
             .save(consumer);
         module(Items.FACADE_MODULE, 8, net.minecraft.world.item.Items.PAPER, inventoryChange(Items.CASING.get()))
             .save(consumer);
@@ -84,21 +84,21 @@ public final class ModRecipesProvider extends FabricRecipeProvider {
             .save(consumer);
         module(Items.KEYPAD_MODULE, 2, ItemTags.BUTTONS, inventoryChange(Items.REDSTONE_MODULE.get()))
             .save(consumer);
-        module(Items.RANDOM_MODULE, 2, CommonItemTags.ENDER_PEARLS, inventoryChange(Items.EXECUTION_MODULE.get()))
+        module(Items.RANDOM_MODULE, 2, ConventionalItemTags.ENDER_PEARLS, inventoryChange(Items.EXECUTION_MODULE.get()))
             .save(consumer);
-        module(Items.RANDOM_ACCESS_MEMORY_MODULE, 2, CommonItemTags.EMERALDS, inventoryChange(Items.STACK_MODULE.get()))
+        module(Items.RANDOM_ACCESS_MEMORY_MODULE, 2, ConventionalItemTags.EMERALD_GEMS, inventoryChange(Items.STACK_MODULE.get()))
             .save(consumer);
         module(Items.READ_ONLY_MEMORY_MODULE, 2, li.cil.tis3d.common.tags.ItemTags.BOOKS, inventoryChange(Items.STACK_MODULE.get()))
             .save(consumer);
-        module(Items.REDSTONE_MODULE, 2, net.minecraft.world.item.Items.REPEATER, inventoryChange(CommonItemTags.REDSTONE_DUSTS))
+        module(Items.REDSTONE_MODULE, 2, net.minecraft.world.item.Items.REPEATER, inventoryChange(ConventionalItemTags.REDSTONE_DUSTS))
             .save(consumer);
-        module(Items.SEQUENCER_MODULE, 2, ItemTags.MUSIC_DISCS, inventoryChange(Items.QUEUE_MODULE.get()))
+        module(Items.SEQUENCER_MODULE, 2, ConventionalItemTags.MUSIC_DISCS, inventoryChange(Items.QUEUE_MODULE.get()))
             .save(consumer);
-        module(Items.SERIAL_PORT_MODULE, 2, CommonItemTags.QUARTZ_GEMS, inventoryChange(Items.EXECUTION_MODULE.get()))
+        module(Items.SERIAL_PORT_MODULE, 2, ConventionalItemTags.QUARTZ_GEMS, inventoryChange(Items.EXECUTION_MODULE.get()))
             .save(consumer);
-        module(Items.STACK_MODULE, 2, CommonItemTags.CHESTS, inventoryChange(Items.REDSTONE_MODULE.get()))
+        module(Items.STACK_MODULE, 2, ConventionalItemTags.CHESTS, inventoryChange(Items.REDSTONE_MODULE.get()))
             .save(consumer);
-        module(Items.TIMER_MODULE, 2, CommonItemTags.SAND, inventoryChange(Items.EXECUTION_MODULE.get()))
+        module(Items.TIMER_MODULE, 2, ConventionalItemTags.SANDS, inventoryChange(Items.EXECUTION_MODULE.get()))
             .save(consumer);
 
         ShapedRecipeBuilder
@@ -109,9 +109,9 @@ public final class ModRecipesProvider extends FabricRecipeProvider {
             .define('K', Items.KEYPAD_MODULE.get())
             .define('D', Items.DISPLAY_MODULE.get())
             .define('S', Items.STACK_MODULE.get())
-            .define('I', CommonItemTags.IRON_INGOTS)
-            .define('Q', CommonItemTags.QUARTZ_GEMS)
-            .define('R', CommonItemTags.REDSTONE_DUSTS)
+            .define('I', ConventionalItemTags.IRON_INGOTS)
+            .define('Q', ConventionalItemTags.QUARTZ_GEMS)
+            .define('R', ConventionalItemTags.REDSTONE_DUSTS)
             .unlockedBy("has_keypad", inventoryChange(Items.KEYPAD_MODULE.get()))
             .save(consumer);
 
@@ -119,12 +119,12 @@ public final class ModRecipesProvider extends FabricRecipeProvider {
             .shapeless(RecipeCategory.MISC, Items.QUEUE_MODULE.get())
             .requires(Items.STACK_MODULE.get())
             .unlockedBy("has_stack", inventoryChange(Items.STACK_MODULE.get()))
-            .save(consumer, new ResourceLocation(API.MOD_ID, Items.QUEUE_MODULE.getId().getPath() + "/from_stack"));
+            .save(consumer, ResourceLocation.fromNamespaceAndPath(API.MOD_ID, Items.QUEUE_MODULE.getId().getPath() + "/from_stack"));
         ShapelessRecipeBuilder
             .shapeless(RecipeCategory.MISC, Items.STACK_MODULE.get())
             .requires(Items.QUEUE_MODULE.get())
             .unlockedBy("has_queue", inventoryChange(Items.QUEUE_MODULE.get()))
-            .save(consumer, new ResourceLocation(API.MOD_ID, Items.STACK_MODULE.getId().getPath() + "/from_queue"));
+            .save(consumer, ResourceLocation.fromNamespaceAndPath(API.MOD_ID, Items.STACK_MODULE.getId().getPath() + "/from_queue"));
     }
 
     private static ShapedRecipeBuilder module(final RegistrySupplier<? extends Item> module, final int count, final Item item, final Criterion<InventoryChangeTrigger.TriggerInstance> unlockedBy) {
@@ -143,9 +143,9 @@ public final class ModRecipesProvider extends FabricRecipeProvider {
             .pattern("PPP")
             .pattern("ISI")
             .pattern(" R ")
-            .define('P', CommonItemTags.GLASS_PANES)
-            .define('I', CommonItemTags.IRON_INGOTS)
-            .define('R', CommonItemTags.REDSTONE_DUSTS)
+            .define('P', ConventionalItemTags.GLASS_PANES_COLORLESS)
+            .define('I', ConventionalItemTags.IRON_INGOTS)
+            .define('R', ConventionalItemTags.REDSTONE_DUSTS)
             .unlockedBy("has_base_item", unlockedBy);
     }
 

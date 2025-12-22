@@ -17,6 +17,7 @@ import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.server.level.ServerEntity;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
@@ -25,13 +26,10 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.entity.TheEndGatewayBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.*;
 
 import javax.annotation.Nullable;
-import java.util.List;
-import java.util.Optional;
 
 /**
  * Represents a single value in transmission, sent by an {@link InfraredModule}.
@@ -66,7 +64,7 @@ public final class InfraredPacketEntity extends Entity implements EntitySpawnExt
     /**
      * The number of ticks that remain until the packet de-spawns.
      */
-    private int lifetime;
+    private double lifetime;
 
     /**
      * The value carried by this packet.
@@ -102,7 +100,11 @@ public final class InfraredPacketEntity extends Entity implements EntitySpawnExt
      * Called from our watchdog each server tick to update our lifetime.
      */
     public void updateLifetime() {
-        if (lifetime-- < 1) {
+        double timeNeededForMove = 1.0f - getDeltaMovement().length() / TRAVEL_SPEED;
+        if (timeNeededForMove <= 0.0f)
+            timeNeededForMove = 1.0f;
+        lifetime -= timeNeededForMove;
+        if (lifetime <= 0.0f) {
             discard();
         }
     }
@@ -110,8 +112,8 @@ public final class InfraredPacketEntity extends Entity implements EntitySpawnExt
     // --------------------------------------------------------------------- //
 
     @Override
-    protected void defineSynchedData() {
-        getEntityData().define(DATA_VALUE, 0);
+    protected void defineSynchedData(final SynchedEntityData.Builder builder) {
+        builder.define(DATA_VALUE, 0);
         if (!level().isClientSide()) {
             InfraredPacketTickHandler.watchPacket(this);
         }
@@ -135,40 +137,56 @@ public final class InfraredPacketEntity extends Entity implements EntitySpawnExt
 
     @Override
     protected void readAdditionalSaveData(final CompoundTag tag) {
-        lifetime = tag.getInt(TAG_LIFETIME);
+        lifetime = tag.getDouble(TAG_LIFETIME);
         value = tag.getShort(TAG_VALUE);
     }
 
     @Override
     protected void addAdditionalSaveData(final CompoundTag tag) {
-        tag.putInt(TAG_LIFETIME, lifetime);
+        tag.putDouble(TAG_LIFETIME, lifetime);
         tag.putShort(TAG_VALUE, value);
     }
 
     @Override
-    public Packet<ClientGamePacketListener> getAddEntityPacket() {
-        return NetworkManager.createAddEntityPacket(this);
+    public Packet<ClientGamePacketListener> getAddEntityPacket(ServerEntity serverEntity) {
+        return NetworkManager.createAddEntityPacket(this, serverEntity);
     }
 
     @Override
     public void tick() {
         // Enforce lifetime, fail-safe, should be tracked in updateLifetime().
-        if (lifetime < 1) {
+        if (lifetime <= 0.0f) {
             discard();
             return;
         }
 
-        // Do general update logic.
-        super.tick();
+        Vec3 target = position().add(getDeltaMovement());
 
-        // Check for collisions and handle them.
-        final HitResult hit = checkCollisions();
+        HitResult hit = checkCollisions();
 
-        // Emit some particles.
         emitParticles(hit);
 
-        // Update position and bounding box
-        setPositionAndUpdateBounds(position().add(getDeltaMovement()));
+        if (hit == null) {
+            setPos(position().add(getDeltaMovement()));
+        }
+        else {
+            setPos(hit.getLocation());
+        }
+
+        // if the ray doesn't end up moving the whole distance,
+        // make it live for one more tick and move the rest of the distance
+        // otherwise, reset delta movement to normal
+        Vec3 newDelta = target.subtract(position());
+        if (newDelta.x == 0.0 && newDelta.y == 0.0 && newDelta.z == 0.0) {
+            Vec3 direction = getDeltaMovement().normalize();
+            setDeltaMovement(direction.scale(TRAVEL_SPEED));
+        }
+        else {
+            setDeltaMovement(newDelta);
+        }
+
+        tryCheckInsideBlocks();
+        super.tick();
     }
 
     @Override
@@ -194,6 +212,16 @@ public final class InfraredPacketEntity extends Entity implements EntitySpawnExt
     @Override
     public boolean shouldRenderAtSqrDistance(final double distance) {
         return false;
+    }
+
+    @Override
+    public boolean canUsePortal(boolean allowPassengers) {
+        return true;
+    }
+
+    @Override
+    public int getDimensionChangingDelay() {
+        return 0;
     }
 
     // --------------------------------------------------------------------- //
@@ -231,20 +259,12 @@ public final class InfraredPacketEntity extends Entity implements EntitySpawnExt
         if (lifetime > 0) {
             // Revive!
             unsetRemoved();
-
-            // Apply new position.
-            setPositionAndUpdateBounds(position);
-
-            // Apply new direction.
+            setPos(position);
             setDeltaMovement(direction.normalize().scale(TRAVEL_SPEED));
         }
     }
 
     // --------------------------------------------------------------------- //
-
-    private void setPositionAndUpdateBounds(final Vec3 pos) {
-        setPos(pos.x, pos.y, pos.z);
-    }
 
     private void emitParticles(@Nullable final HitResult hit) {
         if (!(level() instanceof final ServerLevel serverLevel)) {
@@ -257,10 +277,18 @@ public final class InfraredPacketEntity extends Entity implements EntitySpawnExt
         // Spawn particle effect somewhere between current position and either the
         // position where the packet collided with something, or along the movement
         // direction (i.e. where the packet will be next).
-        final double t = random.nextDouble();
-        final Vec3 delta = hit == null ? getDeltaMovement() : hit.getLocation().subtract(position());
-        final Vec3 pos = position().add(delta.scale(t));
+        double t = random.nextDouble();
+        Vec3 delta = hit == null ? getDeltaMovement() : hit.getLocation().subtract(position());
+        Vec3 pos = position().add(delta.scale(t));
         serverLevel.sendParticles(DustParticleOptions.REDSTONE, pos.x, pos.y, pos.z, 1, 0, 0, 0, 0);
+        //Vec3 pos = position();
+        //int count = (int)delta.length() * 2 + 1;
+        //int count = 100;
+        //final Vec3 inc = delta.scale(1.0 / (count - 1));
+        //for (int i = 0; i < count; i++) {
+        //    serverLevel.sendParticles(DustParticleOptions.REDSTONE, pos.x, pos.y, pos.z, 1, 0, 0, 0, 0);
+        //    pos = pos.add(inc);
+        //}
     }
 
     @Nullable
@@ -268,7 +296,8 @@ public final class InfraredPacketEntity extends Entity implements EntitySpawnExt
         final HitResult hit = checkCollision();
         if (hit instanceof final BlockHitResult blockHit) {
             onBlockCollision(blockHit);
-        } else if (hit instanceof final EntityHitResult entityHit) {
+        }
+        else if (hit instanceof final EntityHitResult entityHit) {
             onEntityCollision(entityHit);
         }
         return hit;
@@ -279,18 +308,28 @@ public final class InfraredPacketEntity extends Entity implements EntitySpawnExt
         final Vec3 start = position();
         final Vec3 target = start.add(getDeltaMovement());
 
-        // Check for block collisions.
-        final HitResult blockHit = Raytracing.raytrace(level(), start, target, Raytracing::intersectIgnoringTransparent);
-
-        // Check for entity collisions.
-        final HitResult entityHit = checkEntityCollision(level(), start, target);
+        final HitResult blockHit = Raytracing.block(level(), start, target,
+            (state, position) -> {
+                if (position.equals(blockPosition()))
+                    return false;
+                if (state.isSolidRender(level(), position))
+                    return true;
+                if (!state.is(Blocks.NETHER_PORTAL) && !state.is(Blocks.END_GATEWAY))
+                    return false;
+                return !isOnPortalCooldown();
+                //return true;
+            },
+            BlockState::getOcclusionShape
+        );
+        final HitResult entityHit = Raytracing.entity(level(), start, target, this, Entity::isPickable);
 
         // If we have both, pick the closer one.
         if (blockHit != null && blockHit.getType() != HitResult.Type.MISS &&
             entityHit != null && entityHit.getType() != HitResult.Type.MISS) {
             if (blockHit.getLocation().distanceToSqr(start) < entityHit.getLocation().distanceToSqr(start)) {
                 return blockHit;
-            } else {
+            }
+            else {
                 return entityHit;
             }
         }
@@ -299,36 +338,7 @@ public final class InfraredPacketEntity extends Entity implements EntitySpawnExt
             return blockHit;
         }
 
-        if (entityHit != null) {
-            return entityHit;
-        }
-
-        return null;
-    }
-
-    @Nullable
-    private HitResult checkEntityCollision(final Level level, final Vec3 start, final Vec3 target) {
-        Entity entityHit = null;
-        Vec3 entityHitVec = null;
-        double bestSqrDistance = Double.POSITIVE_INFINITY;
-
-        final List<Entity> collisions = level.getEntities(this, getBoundingBox().expandTowards(getDeltaMovement()));
-        for (final Entity entity : collisions) {
-            if (entity.isPickable()) {
-                final AABB entityBounds = entity.getBoundingBox();
-                final Optional<Vec3> hit = entityBounds.clip(start, target);
-                if (hit.isPresent()) {
-                    final double sqrDistance = start.distanceToSqr(hit.get());
-                    if (sqrDistance < bestSqrDistance) {
-                        entityHit = entity;
-                        entityHitVec = hit.get();
-                        bestSqrDistance = sqrDistance;
-                    }
-                }
-            }
-        }
-
-        return entityHit != null ? new EntityHitResult(entityHit, entityHitVec) : null;
+        return entityHit;
     }
 
     private void onBlockCollision(final BlockHitResult hit) {
@@ -336,22 +346,30 @@ public final class InfraredPacketEntity extends Entity implements EntitySpawnExt
         final BlockState blockState = level().getBlockState(pos);
         final Block block = blockState.getBlock();
 
-        // Traveling through a portal?
-        final BlockEntity blockEntity = level().getBlockEntity(pos);
-        if (blockState.is(Blocks.NETHER_PORTAL)) {
-            handleInsidePortal(pos);
+        if (!blockState.isSolidRender(level(), pos)) {
+            //final double travelled = position().distanceTo(Vec3.atCenterOf(pos));
+            //blockState.entityInside(level(), blockPosition(), this);
+            //handlePortal();
+            //setPositionAndUpdateBounds(blockPosition().getCenter());
+            //setDeltaMovement(getDeltaMovement().normalize().scale(getDeltaMovement().length() - travelled));
             return;
-        } else if (blockState.is(Blocks.END_GATEWAY)) {
-            if (blockEntity instanceof final TheEndGatewayBlockEntity endGateway && TheEndGatewayBlockEntity.canEntityTeleport(this)) {
-                TheEndGatewayBlockEntity.teleportEntity(level(), pos, blockState, this, endGateway);
-                return;
-            }
         }
 
-        // First things first, we ded.
+        final BlockEntity blockEntity = level().getBlockEntity(pos);
+        //if (blockState.is(Blocks.NETHER_PORTAL)) {
+        //    handleInsidePortal(pos);
+        //    NetherPortalBlock
+        //    return;
+        //} else if (blockState.is(Blocks.END_GATEWAY)) {
+        //    if (blockEntity instanceof final TheEndGatewayBlockEntity endGateway && canUsePortal(false)) {
+        //        setAsInsidePortal((EndGatewayBlock)block, pos);
+        //        TheEndGatewayBlockEntity.triggerCooldown(level(), pos, blockState, endGateway);
+        //        return;
+        //    }
+        //}
+
         discard();
 
-        // Next up, notify receiver, if any.
         if (block instanceof final InfraredReceiver receiver) {
             receiver.onInfraredPacket(this, hit);
         }
@@ -362,10 +380,8 @@ public final class InfraredPacketEntity extends Entity implements EntitySpawnExt
     }
 
     private void onEntityCollision(final EntityHitResult hit) {
-        // First things first, we ded.
         discard();
 
-        // Next up, notify receiver, if any.
         if (hit.getEntity() instanceof final InfraredReceiver receiver) {
             receiver.onInfraredPacket(this, hit);
         }
