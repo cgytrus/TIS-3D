@@ -43,7 +43,11 @@ jobs:
         run: chmod +x ./tis3d/gradlew ./manual/gradlew
 
       - name: Build Markdown Manual with Gradle
-        run: ./manual/gradlew build
+        run: |
+          cd manual
+          ./gradlew build
 
       - name: Build TIS-3D with Gradle
-        run: ./tis3d/gradlew build
+        run: |
+          cd tis3d
+          ./gradlew build
