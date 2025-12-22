@@ -21,11 +21,13 @@ jobs:
           java-version: ${{ matrix.java }}
 
       - uses: actions/checkout@v4
-        path: tis3d
+        with:
+          path: tis3d
 
       - uses: actions/checkout@v4
-        repository: cgytrus/MarkdownManual@main
-        path: manual
+        with:
+          repository: cgytrus/MarkdownManual@main
+          path: manual
 
       - uses: actions/cache@v4
         with:
