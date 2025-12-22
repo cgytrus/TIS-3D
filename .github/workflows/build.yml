@@ -46,6 +46,7 @@ jobs:
         run: |
           cd manual
           ./gradlew build
+          ./gradlew publishToMavenLocal
 
       - name: Build TIS-3D with Gradle
         run: |
