@@ -34,13 +34,13 @@ dependencies {
     modApi(libs.fabric.api)
     modApi(libs.fabric.architectury)
 
-    modCompileOnly(libs.fabric.reiApi)
-    modRuntimeOnly(libs.fabric.rei)
     modImplementation(libs.fabric.manual)
     modImplementation(libs.fabric.forgeConfigPort)
 
     // Not used by mod, just for dev convenience.
     modRuntimeOnly(libs.fabric.tooltipFix)
+    modRuntimeOnly(libs.fabric.rei)
+    modRuntimeOnly(libs.fabric.sodium)
 }
 
 tasks {

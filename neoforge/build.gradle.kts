@@ -29,6 +29,8 @@ dependencies {
     modImplementation(libs.neoforge.architectury)
 
     modImplementation(libs.neoforge.manual)
+
+    modRuntimeOnly(libs.neoforge.rei)
 }
 
 tasks {

@@ -2,9 +2,9 @@ package li.cil.tis3d.mixin.fabric;
 
 import li.cil.tis3d.api.module.traits.fabric.ModuleWithBakedModelFabric;
 import li.cil.tis3d.common.module.FacadeModule;
+import net.fabricmc.fabric.api.renderer.v1.RendererAccess;
 import net.fabricmc.fabric.api.renderer.v1.material.BlendMode;
 import net.fabricmc.fabric.api.renderer.v1.render.RenderContext;
-import net.fabricmc.fabric.impl.client.indigo.renderer.IndigoRenderer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.core.BlockPos;
@@ -24,11 +24,14 @@ public abstract class MixinFacadeModule implements ModuleWithBakedModelFabric {
 
     @Override
     public void emitBlockQuads(final BlockAndTintGetter blockView, final BlockState state, final BlockPos pos, final Direction direction, final Supplier<RandomSource> randomSupplier, final RenderContext context) {
+        final var renderer = RendererAccess.INSTANCE.getRenderer();
+        if (renderer == null)
+            return;
         final var emitter = context.getEmitter();
         final var model = Minecraft.getInstance().getBlockRenderer().getBlockModel(facadeState);
         final var quads = model.getQuads(facadeState, direction, randomSupplier.get());
         for (final BakedQuad quad : quads) {
-            emitter.fromVanilla(quad, IndigoRenderer.INSTANCE.materialFinder().blendMode(BlendMode.CUTOUT_MIPPED).find(), direction);
+            emitter.fromVanilla(quad, renderer.materialFinder().blendMode(BlendMode.CUTOUT_MIPPED).find(), direction);
             emitter.emit();
         }
     }

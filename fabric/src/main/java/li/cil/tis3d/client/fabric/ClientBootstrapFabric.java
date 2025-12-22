@@ -50,10 +50,6 @@ public final class ClientBootstrapFabric implements ClientModInitializer {
             return ItemStack.EMPTY;
         });
 
-        if (FabricLoader.getInstance().isModLoaded("sodium")) {
-            LOGGER.warn("Sodium detected, disabling modules that need custom block model rendering. See https://github.com/MightyPirates/TIS-3D/issues/171");
-        } else {
-            ModuleModelLoader.initialize();
-        }
+        ModuleModelLoader.initialize();
     }
 }

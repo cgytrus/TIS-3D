@@ -37,12 +37,14 @@ fabric-architectury = { group = "dev.architectury", name = "architectury-fabric"
 
 fabric-forgeConfigPort = { group = "fuzs.forgeconfigapiport", name = "forgeconfigapiport-fabric", version.ref = "fabric-forgeConfigPort" }
 fabric-manual = { group = "li.cil", name = "manual", version.ref = "fabric-markdownManual" }
-fabric-reiApi = { group = "me.shedaniel", name = "RoughlyEnoughItems-api-fabric", version.ref = "rei" }
-fabric-rei = { group = "me.shedaniel", name = "RoughlyEnoughItems-fabric", version.ref = "rei" }
 
 fabric-tooltipFix = { group = "maven.modrinth", name = "tooltipfix", version.ref = "fabric-tooltipfix" }
+fabric-rei = { group = "me.shedaniel", name = "RoughlyEnoughItems-fabric", version.ref = "rei" }
+fabric-sodium = { group = "maven.modrinth", name = "sodium", version = "mc1.21.1-0.6.13-fabric" }
 
 neoforge-platform = { group = "net.neoforged", name = "neoforge", version.ref = "neoforge-platform" }
 neoforge-architectury = { group = "dev.architectury", name = "architectury-neoforge", version.ref = "architectury" }
 
 neoforge-manual = { group = "li.cil", name = "manual", version.ref = "neoforge-markdownManual" }
+
+neoforge-rei = { group = "me.shedaniel", name = "RoughlyEnoughItems-neoforge", version.ref = "rei" }
