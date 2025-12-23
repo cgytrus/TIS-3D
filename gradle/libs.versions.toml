@@ -5,21 +5,21 @@ parchment-mappings = "2024.11.17"
 
 architectury = "13.0.8"
 #manual = "1.2.6"
-manual = "1.0.0"
+manual = "0.0.0"
 rei = "16.0.799"
 
 fabric-loader = "0.18.3"
 fabric-api = "0.116.7+1.21.1"
 
 fabric-forgeConfigPort = "21.1.6"
-fabric-markdownManual = "MC1.21.1-fabric-1.0.0"
+fabric-markdownManual = "MC1.21.1-fabric-0.0.0"
 
 fabric-tooltipfix = "1.1.1-1.20"
 
 neoforge-platform = "21.1.217"
 neoforge-loader = "2"
 
-neoforge-markdownManual = "MC1.21.1-neoforge-1.0.0"
+neoforge-markdownManual = "MC1.21.1-neoforge-0.0.0"
 
 [plugins]
 loom = { id = "dev.architectury.loom", version = "1.11-SNAPSHOT" }
