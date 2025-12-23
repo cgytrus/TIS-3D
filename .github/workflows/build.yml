@@ -52,3 +52,33 @@ jobs:
         run: |
           cd tis3d
           ./gradlew build
+
+      - name: Remove shadow JARs
+        run: |
+          rm fabric/build/libs/*-dev-shadow.jar
+          rm neoforge/build/libs/*-dev-shadow.jar
+
+      - uses: actions/upload-artifact@v4
+        name: Upload API Artifact
+        id: upload-api
+        with:
+          name: tis3d-api
+          path: ./common/build/libs/*-api.jar
+        if: ${{ matrix.os == 'ubuntu-latest' }}
+
+      - uses: actions/upload-artifact@v4
+        name: Upload Fabric Artifact
+        id: upload-fabric
+        with:
+          name: tis3d-fabric
+          path: ./fabric/build/libs/*.jar
+        if: ${{ matrix.os == 'ubuntu-latest' }}
+
+      - uses: actions/upload-artifact@v4
+        name: Upload NeoForge Artifact
+        id: upload-neoforge
+        with:
+          name: tis3d-neoforge
+          path: ./neoforge/build/libs/*.jar
+        if: ${{ matrix.os == 'ubuntu-latest' }}
+
