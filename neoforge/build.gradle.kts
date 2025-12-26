@@ -30,7 +30,7 @@ dependencies {
 
     modImplementation(libs.neoforge.manual)
 
-    modRuntimeOnly(libs.neoforge.rei)
+    modRuntimeOnly(libs.neoforge.emi)
 }
 
 tasks {

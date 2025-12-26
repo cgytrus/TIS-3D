@@ -6,7 +6,6 @@ parchment-mappings = "2024.11.17"
 architectury = "13.0.8"
 #manual = "1.2.6"
 manual = "0.0.0"
-rei = "16.0.799"
 
 fabric-loader = "0.18.3"
 fabric-api = "0.116.7+1.21.1"
@@ -15,11 +14,14 @@ fabric-forgeConfigPort = "21.1.6"
 fabric-markdownManual = "MC1.21.1-fabric-0.0.0"
 
 fabric-tooltipfix = "1.1.1-1.20"
+fabric-emi = "1.1.22+1.21.1+fabric"
 
 neoforge-platform = "21.1.217"
 neoforge-loader = "2"
 
 neoforge-markdownManual = "MC1.21.1-neoforge-0.0.0"
+
+neoforge-emi = "1.1.22+1.21.1+neoforge"
 
 [plugins]
 loom = { id = "dev.architectury.loom", version = "1.11-SNAPSHOT" }
@@ -39,7 +41,7 @@ fabric-forgeConfigPort = { group = "fuzs.forgeconfigapiport", name = "forgeconfi
 fabric-manual = { group = "li.cil", name = "manual", version.ref = "fabric-markdownManual" }
 
 fabric-tooltipFix = { group = "maven.modrinth", name = "tooltipfix", version.ref = "fabric-tooltipfix" }
-fabric-rei = { group = "me.shedaniel", name = "RoughlyEnoughItems-fabric", version.ref = "rei" }
+fabric-emi = { group = "maven.modrinth", name = "emi", version.ref = "fabric-emi" }
 fabric-sodium = { group = "maven.modrinth", name = "sodium", version = "mc1.21.1-0.6.13-fabric" }
 
 neoforge-platform = { group = "net.neoforged", name = "neoforge", version.ref = "neoforge-platform" }
@@ -47,4 +49,4 @@ neoforge-architectury = { group = "dev.architectury", name = "architectury-neofo
 
 neoforge-manual = { group = "li.cil", name = "manual", version.ref = "neoforge-markdownManual" }
 
-neoforge-rei = { group = "me.shedaniel", name = "RoughlyEnoughItems-neoforge", version.ref = "rei" }
+neoforge-emi = { group = "maven.modrinth", name = "emi", version.ref = "neoforge-emi" }

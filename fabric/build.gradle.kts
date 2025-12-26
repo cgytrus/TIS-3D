@@ -39,7 +39,7 @@ dependencies {
 
     // Not used by mod, just for dev convenience.
     modRuntimeOnly(libs.fabric.tooltipFix)
-    modRuntimeOnly(libs.fabric.rei)
+    modRuntimeOnly(libs.fabric.emi)
     modRuntimeOnly(libs.fabric.sodium)
 }
 
