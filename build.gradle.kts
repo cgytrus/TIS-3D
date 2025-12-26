@@ -50,7 +50,15 @@ subprojects {
             filter { includeGroup("maven.modrinth") }
         }
         exclusiveContent {
-            forRepository { maven("https://maven.pkg.github.com/cgytrus/MarkdownManual") }
+            forRepository {
+                maven {
+                    url = uri("https://maven.pkg.github.com/cgytrus/MarkdownManual")
+                    credentials {
+                        username = System.getenv("GITHUB_ACTOR")
+                        password = System.getenv("GITHUB_TOKEN")
+                    }
+                }
+            }
             filter { includeGroup("li.cil") }
         }
         mavenLocal()
