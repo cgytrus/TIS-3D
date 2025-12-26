@@ -10,8 +10,7 @@ jobs:
     strategy:
       matrix:
         java: [ 21 ]
-        os: [ ubuntu-latest, windows-latest ]
-    runs-on: ${{ matrix.os }}
+    runs-on: ubuntu-latest
 
     steps:
       - name: Set up JDK ${{ matrix.java }}
@@ -21,14 +20,6 @@ jobs:
           java-version: ${{ matrix.java }}
 
       - uses: actions/checkout@v4
-        with:
-          path: tis3d
-
-      - uses: actions/checkout@v4
-        with:
-          repository: cgytrus/MarkdownManual
-          path: manual
-
       - uses: actions/cache@v4
         with:
           path: |
@@ -40,45 +31,47 @@ jobs:
       - name: Validate Gradle wrapper
         uses: gradle/wrapper-validation-action@v2
       - name: Grant execute permission for gradlew
-        run: chmod +x ./tis3d/gradlew ./manual/gradlew
+        run: chmod +x ./gradlew
 
-      - name: Build Markdown Manual with Gradle
-        run: |
-          cd manual
-          ./gradlew build
-          ./gradlew publishToMavenLocal
-
-      - name: Build TIS-3D with Gradle
-        run: |
-          cd tis3d
-          ./gradlew build
+      - name: Build
+        run: ./gradlew build
 
       - name: Remove shadow JARs
         run: |
-          rm tis3d/fabric/build/libs/*-dev-shadow.jar
-          rm tis3d/neoforge/build/libs/*-dev-shadow.jar
+          rm fabric/build/libs/*-dev-shadow.jar
+          rm neoforge/build/libs/*-dev-shadow.jar
 
       - uses: actions/upload-artifact@v4
-        name: Upload API Artifact
+        name: Upload API Build
         id: upload-api
         with:
           name: tis3d-api
-          path: ./tis3d/common/build/libs/*-api.jar
-        if: ${{ matrix.os == 'ubuntu-latest' }}
+          path: ./common/build/libs/*-api.jar
 
       - uses: actions/upload-artifact@v4
-        name: Upload Fabric Artifact
+        name: Upload Fabric Build
         id: upload-fabric
         with:
           name: tis3d-fabric
-          path: ./tis3d/fabric/build/libs/*.jar
-        if: ${{ matrix.os == 'ubuntu-latest' }}
+          path: ./fabric/build/libs/*.jar
 
       - uses: actions/upload-artifact@v4
-        name: Upload NeoForge Artifact
+        name: Upload NeoForge Build
         id: upload-neoforge
         with:
           name: tis3d-neoforge
-          path: ./tis3d/neoforge/build/libs/*.jar
-        if: ${{ matrix.os == 'ubuntu-latest' }}
+          path: ./neoforge/build/libs/*.jar
 
+      - name: Update Development Release
+        uses: andelf/nightly-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: dev
+          name: 'Development Release'
+          body: |
+            TIS-3D development release for commit ${{ github.sha }}. [Markdown Manual](https://github.com/cgytrus/MarkdownManual/releases) is a required dependency for this mod.
+          files: |
+            ./common/build/libs/*-api.jar
+            ./fabric/build/libs/*.jar
+            ./neoforge/build/libs/*.jar
