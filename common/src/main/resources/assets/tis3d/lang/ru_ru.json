@@ -1,5 +1,12 @@
 {
-    "itemGroup.tis3d.name": "TIS-3D",
+    "itemGroup.tis3d.common": "TIS-3D",
+
+    "tag.item.tis3d.books": "Книги",
+    "tag.item.tis3d.computers": "Компьютеры",
+    "tag.item.tis3d.keys": "Ключи",
+    "tag.item.tis3d.modules": "Модули",
+
+    "tag.block.tis3d.computers": "Компьютеры",
 
     "item.tis3d.code_book": "Библия Кода",
     "item.tis3d.code_book.desc": "§7Используй книгу на установленном Исполняющем Модуле, чтобы получить копию.",
@@ -12,6 +19,7 @@
     "item.tis3d.audio_module": "Звуковой Модуль",
     "item.tis3d.display_module": "Дисплейный Модуль",
     "item.tis3d.execution_module": "Исполняющий Модуль",
+    "item.tis3d.facade_module": "Фасадный Модуль",
     "item.tis3d.infrared_module": "Инфракрасный Модуль",
     "item.tis3d.keypad_module": "Клавиатурный Модуль",
     "item.tis3d.queue_module": "Модуль Очереди",
@@ -44,15 +52,22 @@
     "tis3d.controller.status.multiple_controllers": "Несколько контроллеров",
     "tis3d.controller.status.too_complex": "Сложность слишком велика",
 
+    "tis3d.facade.invalid_target": "Этот блок не может быть использован как фасад.",
+
     "tis3d.manual.home": "Начальная Страница",
     "tis3d.manual.blocks": "Блоки",
     "tis3d.manual.items": "Предметы",
     "tis3d.manual.serial_protocols": "Серийные Протоколы",
+    "tis3d.manual.serial_protocols.furnace": "Печь из Minecraft",
     "tis3d.manual.warning.missing.block": "Блок отсутствует.",
     "tis3d.manual.warning.missing.image": "Изображение не найдено.",
     "tis3d.manual.warning.missing.item": "Предмет не доступен.",
     "tis3d.manual.warning.missing.tag": "Тег отстутствует.",
+    "tis3d.manual.warning.missing.content_renderer": "Не найден отрисовщик контента для [%s].",
 
     "tis3d.code_book.error_on_next_page": "Ошибка на следующей странице:",
-    "tis3d.code_book.error_on_previous_page": "Ошибка на предыдущей странице:"
+    "tis3d.code_book.error_on_previous_page": "Ошибка на предыдущей странице:",
+    "tis3d.code_book.previous_page": "Предыдущая Страница",
+    "tis3d.code_book.next_page": "Следующая Страница",
+    "tis3d.code_book.delete_page": "Удалить Страницу"
 }

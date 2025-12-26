@@ -1,5 +1,5 @@
 {
-    "itemGroup.tis3d.name": "TIS-3D",
+    "itemGroup.tis3d.common": "TIS-3D",
 
     "item.tis3d.code_book": "程式設計聖經",
     "item.tis3d.code_book.desc": "§7對著已安裝的執行模組使用書以獲取原始碼的拷貝。",

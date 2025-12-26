@@ -1,5 +1,5 @@
 {
-    "itemGroup.tis3d.name": "TIS-3D",
+    "itemGroup.tis3d.common": "TIS-3D",
 
     "item.tis3d.code_book": "Code-Bibel",
     "item.tis3d.code_book.desc": "§7Klicke mit einem Buch auf ein Ausführmodul, um ein Kopie zu erhalten.",

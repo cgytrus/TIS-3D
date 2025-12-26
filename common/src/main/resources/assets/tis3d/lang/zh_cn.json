@@ -1,5 +1,5 @@
 {
-    "itemGroup.tis3d.name": "TIS-3D",
+    "itemGroup.tis3d.common": "TIS-3D",
 
     "item.tis3d.code_book": "编码书",
     "item.tis3d.code_book.desc": "§7对着已安装的执行模块使用书以获取代码的副本。",

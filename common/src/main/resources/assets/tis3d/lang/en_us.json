@@ -1,6 +1,13 @@
 {
     "itemGroup.tis3d.common": "TIS-3D",
 
+    "tag.item.tis3d.books": "Books",
+    "tag.item.tis3d.computers": "Computers",
+    "tag.item.tis3d.keys": "Keys",
+    "tag.item.tis3d.modules": "Modules",
+
+    "tag.block.tis3d.computers": "Computers",
+
     "item.tis3d.code_book": "Code Bible",
     "item.tis3d.code_book.desc": "§7Use a book on an installed execution module to get a copy.",
     "item.tis3d.manual": "TIS-3D Reference Manual",
