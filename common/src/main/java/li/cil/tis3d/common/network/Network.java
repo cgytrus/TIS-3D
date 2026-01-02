@@ -92,6 +92,9 @@ public final class Network {
                 context.queue(() -> message.handleMessage(context));
             });
         }
+        else {
+            NetworkManager.registerS2CPayloadType(id);
+        }
     }
 
     // --------------------------------------------------------------------- //
